@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "PixelBuy Mobile",
+    "slug": "smart-shop-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow PixelBuy Mobile to use the microphone for voice shopping.",
+          "speechRecognitionPermission": "Allow PixelBuy Mobile to turn your voice into shopping messages.",
+          "androidSpeechServicePackages": [
+            "com.google.android.googlequicksearchbox",
+            "com.google.android.tts",
+            "com.google.android.as"
+          ]
+        }
+      ]
+    ]
+  }
+}

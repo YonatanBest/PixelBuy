@@ -1,0 +1,20 @@
+{
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^15.0.2",
+    "expo": "latest",
+    "expo-av": "^16.0.8",
+    "expo-file-system": "~55.0.22",
+    "expo-speech": "~55.0.14",
+    "expo-speech-recognition": "^3.1.3",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-native": "0.83.6",
+    "react-native-web": "^0.21.0"
+  }
+}
