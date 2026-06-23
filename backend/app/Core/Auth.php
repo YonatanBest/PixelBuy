@@ -2,11 +2,30 @@
 
 namespace App\Core;
 
+use App\Models\User;
+
 class Auth
 {
     public static function user(): ?array
     {
-        return $_SESSION['user'] ?? null;
+        if (!empty($_SESSION['user'])) {
+            return $_SESSION['user'];
+        }
+
+        $id = self::id();
+        if (!$id) {
+            return null;
+        }
+
+        $user = (new User())->find($id);
+        if (!$user) {
+            return null;
+        }
+
+        $safeUser = (new User())->safe($user);
+        $_SESSION['user'] = $safeUser;
+
+        return $safeUser;
     }
 
     public static function id(): ?int

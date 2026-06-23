@@ -49,7 +49,8 @@ export default function AiAssistantWidget({ route = "products" }) {
   const [knownSessions, setKnownSessions] = useState(() => readKnownSessions());
   const [sessionId, setSessionId] = useState(initialSession);
   const [listening, setListening] = useState(false);
-  const [micMuted, setMicMuted] = useState(localStorage.getItem("smart_shop_mic_muted") === "true");
+  const [micMuted, setMicMuted] = useState(localStorage.getItem("smart_shop_mic_muted") !== "false");
+  const [micStatus, setMicStatus] = useState("Mic muted");
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [busy, setBusy] = useState(false);
   const [liveConnected, setLiveConnected] = useState(false);
@@ -237,13 +238,16 @@ export default function AiAssistantWidget({ route = "products" }) {
 
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
-    recognition.interimResults = false;
-    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.continuous = false;
     recognition.onresult = (event) => {
       let transcript = "";
+      let finalTranscript = "";
       for (let index = event.resultIndex; index < event.results.length; index += 1) {
+        const text = event.results[index][0]?.transcript || "";
+        transcript = `${transcript} ${text}`.trim();
         if (event.results[index].isFinal) {
-          transcript = `${transcript} ${event.results[index][0]?.transcript || ""}`.trim();
+          finalTranscript = `${finalTranscript} ${text}`.trim();
         }
       }
       if (assistantAudioPauseRef.current || Date.now() < assistantSpeakingUntilRef.current) {
@@ -251,31 +255,41 @@ export default function AiAssistantWidget({ route = "products" }) {
         return;
       }
       setMessage(transcript);
-      if (transcript) send(transcript);
+      if (finalTranscript) {
+        setMicStatus("Mic ready");
+        send(finalTranscript);
+      } else if (transcript) {
+        setMicStatus("Listening...");
+      }
     };
     recognition.onstart = () => {
       listeningRef.current = true;
       setListening(true);
+      setMicStatus("Listening...");
     };
-    recognition.onerror = () => {
+    recognition.onerror = (event) => {
       listeningRef.current = false;
       setListening(false);
-      if (!manuallyStoppedMicRef.current && !micMutedRef.current) {
-        queueMicRestart(700);
+      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+        manuallyStoppedMicRef.current = true;
+        setMicMuted(true);
+        setMicStatus("Mic permission blocked");
+        return;
       }
+      if (event.error === "no-speech") {
+        setMicStatus("Mic ready");
+        return;
+      }
+      setMicStatus("Mic unavailable");
     };
     recognition.onend = () => {
       listeningRef.current = false;
       setListening(false);
-      if (!manuallyStoppedMicRef.current && !micMutedRef.current) {
-        queueMicRestart(350);
+      if (!micMutedRef.current && !assistantAudioPauseRef.current) {
+        setMicStatus("Mic ready");
       }
     };
     recognitionRef.current = recognition;
-
-    if (!micMutedRef.current) {
-      queueMicRestart(500);
-    }
 
     return () => {
       window.clearTimeout(restartMicTimerRef.current);
@@ -293,6 +307,7 @@ export default function AiAssistantWidget({ route = "products" }) {
     if (micMuted) {
       stopMic();
       setMicPausedForAudio(false);
+      setMicStatus("Mic muted");
     } else {
       manuallyStoppedMicRef.current = false;
       startMic();
@@ -336,6 +351,7 @@ export default function AiAssistantWidget({ route = "products" }) {
     }
     listeningRef.current = false;
     setListening(false);
+    setMicStatus("Mic paused while Pixie speaks");
   };
 
   const resumeMicAfterAssistantAudio = () => {
@@ -345,7 +361,7 @@ export default function AiAssistantWidget({ route = "products" }) {
     setMicPausedForAudio(false);
     if (!micMutedRef.current) {
       manuallyStoppedMicRef.current = false;
-      queueMicRestart(250);
+      setMicStatus("Mic ready");
     }
   };
 
@@ -447,10 +463,9 @@ export default function AiAssistantWidget({ route = "products" }) {
     try {
       recognition.start();
       manuallyStoppedMicRef.current = false;
+      setMicStatus("Listening...");
     } catch {
-      if (!micMutedRef.current && !manuallyStoppedMicRef.current) {
-        queueMicRestart(700);
-      }
+      setMicStatus("Mic ready");
     }
   };
 
@@ -466,6 +481,7 @@ export default function AiAssistantWidget({ route = "products" }) {
     }
     listeningRef.current = false;
     setListening(false);
+    setMicStatus("Mic muted");
   };
 
   const switchSession = (nextSessionId) => {
@@ -581,7 +597,7 @@ export default function AiAssistantWidget({ route = "products" }) {
                 <button onClick={() => send()} disabled={busy}><Send size={18} /></button>
               </div>
               <span className="voice-status">
-                {liveConnected ? "Pixie connected" : "Pixie offline"} - {audioEnabled ? "Voice on" : "Voice muted"} - {micMuted ? "Mic muted" : micPausedForAudio ? "Mic paused while Pixie speaks" : listening ? "Listening by default" : "Mic ready"}
+                {liveConnected ? "Pixie connected" : "Pixie offline"} - {audioEnabled ? "Voice on" : "Voice muted"} - {micPausedForAudio ? "Mic paused while Pixie speaks" : listening ? "Listening..." : micStatus}
               </span>
             </div>
           </div>

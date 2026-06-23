@@ -1,31 +1,40 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { api } from "../api/apiClient";
+import { api, getRememberedAuthUser, rememberAuthUser } from "../api/apiClient";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => getRememberedAuthUser());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api.me()
-      .then((res) => setUser(res.data))
-      .catch(() => setUser(null))
+      .then((res) => {
+        rememberAuthUser(res.data);
+        setUser(res.data);
+      })
+      .catch(() => {
+        rememberAuthUser(null);
+        setUser(null);
+      })
       .finally(() => setLoading(false));
   }, []);
 
   const login = async (email, password) => {
     const res = await api.login({ email, password });
+    rememberAuthUser(res.data);
     setUser(res.data);
   };
 
   const register = async (name, email, password) => {
     const res = await api.register({ name, email, password });
+    rememberAuthUser(res.data);
     setUser(res.data);
   };
 
   const logout = async () => {
-    await api.logout();
+    await api.logout().catch(() => {});
+    rememberAuthUser(null);
     setUser(null);
   };
 

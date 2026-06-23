@@ -1,9 +1,36 @@
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
+const AUTH_USER_KEY = "pixelbuy_auth_user";
+
+function readStoredUser() {
+  try {
+    return JSON.parse(localStorage.getItem(AUTH_USER_KEY) || "null");
+  } catch {
+    return null;
+  }
+}
+
+export function rememberAuthUser(user) {
+  if (user?.id) {
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+    return;
+  }
+  localStorage.removeItem(AUTH_USER_KEY);
+}
+
+export function getRememberedAuthUser() {
+  return readStoredUser();
+}
 
 async function request(path, options = {}) {
+  const storedUser = readStoredUser();
+  const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+  if (storedUser?.id && !headers["X-User-Id"]) {
+    headers["X-User-Id"] = String(storedUser.id);
+  }
+
   const response = await fetch(`${API_BASE}${path}`, {
     credentials: "include",
-    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+    headers,
     ...options,
   });
   const data = await response.json();
