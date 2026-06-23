@@ -79,6 +79,13 @@ TOOLS = [
 
 
 def db():
+    ssl_mode = ENV.get("DB_SSL_MODE", "").lower()
+    ssl_config = None
+    if ssl_mode and ssl_mode != "disabled":
+        ssl_config = {}
+        if ENV.get("DB_SSL_CA"):
+            ssl_config["ca"] = ENV["DB_SSL_CA"]
+
     return pymysql.connect(
         host=ENV.get("DB_HOST", "127.0.0.1"),
         port=int(ENV.get("DB_PORT", "3306")),
@@ -88,6 +95,7 @@ def db():
         charset="utf8mb4",
         cursorclass=pymysql.cursors.DictCursor,
         autocommit=True,
+        ssl=ssl_config,
     )
 
 

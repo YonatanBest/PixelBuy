@@ -23,6 +23,10 @@ services:
         sync: false
       - key: DB_PASSWORD
         sync: false
+      - key: DB_SSL_MODE
+        value: REQUIRED
+      - key: DB_SSL_CA
+        sync: false
       - key: GEMINI_API_KEY
         sync: false
       - key: GEMINI_MODEL
@@ -49,6 +53,10 @@ services:
       - key: DB_USERNAME
         sync: false
       - key: DB_PASSWORD
+        sync: false
+      - key: DB_SSL_MODE
+        value: REQUIRED
+      - key: DB_SSL_CA
         sync: false
       - key: GEMINI_API_KEY
         sync: false
