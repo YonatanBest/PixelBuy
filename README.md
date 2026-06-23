@@ -26,7 +26,7 @@ Install:
 ### 1. Open The Project Folder
 
 ```powershell
-cd "AI-Powered Real-Time Shopping Platform"
+cd "PixelBuy"
 ```
 
 ### 2. Start XAMPP
@@ -343,10 +343,3 @@ For a real phone, set:
 ```text
 EXPO_PUBLIC_API_BASE=http://YOUR_COMPUTER_IP:8000
 ```
-
-## Course Mapping
-
-- Advanced Internet Programming: PHP OOP backend, CRUD, authentication, MySQL.
-- E-Commerce Course: React product listing, cart, checkout, admin product form.
-- Mobile Computing: Expo React Native product browsing, cart, login, AI assistant.
-- AI Differentiator: shopping-domain Gemini assistant for recommendations, explanations, and comparisons.

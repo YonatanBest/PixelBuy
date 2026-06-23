@@ -30,7 +30,7 @@ def load_env() -> dict[str, str]:
                 continue
             key, value = line.split("=", 1)
             values[key.strip()] = value.strip()
-    values.update({key: value for key, value in os.environ.items() if key.startswith(("DB_", "GEMINI_"))})
+    values.update({key: value for key, value in os.environ.items() if key.startswith(("DB_", "GEMINI_", "LIVE_WS_"))})
     return values
 
 
@@ -556,7 +556,7 @@ async def handle_client(ws) -> None:
 
 async def main() -> None:
     host = ENV.get("LIVE_WS_HOST", "127.0.0.1")
-    port = int(ENV.get("LIVE_WS_PORT", "8765"))
+    port = int(ENV.get("LIVE_WS_PORT") or os.environ.get("PORT") or "8765")
     async with websockets.serve(handle_client, host, port):
         print(f"Gemini Live websocket server running at ws://{host}:{port}/ws", flush=True)
         await asyncio.Future()

@@ -1,0 +1,10 @@
+.git
+node_modules
+web/node_modules
+web/dist
+mobile/node_modules
+__pycache__/
+.venv
+.env
+backend/.env
+.expo

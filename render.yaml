@@ -1,0 +1,60 @@
+services:
+  - type: web
+    name: pixelbuy-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    envVars:
+      - key: APP_URL
+        value: https://pixelbuy-api.onrender.com
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://pixelbuy.vercel.app
+      - key: SESSION_COOKIE_SECURE
+        value: "true"
+      - key: SESSION_COOKIE_SAMESITE
+        value: None
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.1-flash-live-preview
+      - key: GEMINI_PLANNER_MODEL
+        value: gemini-3.1-flash-lite-preview
+      - key: GEMINI_TITLE_MODEL
+        value: gemini-3.5-flash
+
+  - type: web
+    name: pixelbuy-ai
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: python backend/scripts/gemini_live_server.py
+    envVars:
+      - key: LIVE_WS_HOST
+        value: 0.0.0.0
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.1-flash-live-preview
+      - key: GEMINI_PLANNER_MODEL
+        value: gemini-3.1-flash-lite-preview
+      - key: GEMINI_TITLE_MODEL
+        value: gemini-3.5-flash
