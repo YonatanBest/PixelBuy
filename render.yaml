@@ -6,7 +6,7 @@ services:
     dockerContext: .
     envVars:
       - key: APP_URL
-        value: https://pixelbuy-api.onrender.com
+        value: https://pixelbuy.onrender.com
       - key: CORS_ALLOWED_ORIGINS
         value: https://pixel-buy.vercel.app
       - key: SESSION_COOKIE_SECURE
